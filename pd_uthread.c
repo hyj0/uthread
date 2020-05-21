@@ -30,6 +30,10 @@ struct PdUThreadMgr
   struct PdUThreadNode *ready_list_tail;
 };
 
+extern struct PdUThreadNode *getPdUThreadMgr_ready_list_head(struct PdUThreadMgr *uthread_mgr) {
+  return uthread_mgr->ready_list_head;
+}
+
 static void pd_uthread_wrapper(struct PdUThreadMgr *uthread_mgr, struct PdUThreadNode *uthread_node)
 {
   uthread_node->uthread_func(uthread_node, uthread_node->uthread_arg);
@@ -122,6 +126,32 @@ void pd_uthread_schedule(struct PdUThreadMgr *uthread_mgr)
         _longjmp(curr_node->jmpbuf, 1);
       }
     }
+  }
+}
+
+int pd_uthread_scheduleII(struct PdUThreadMgr *uthread_mgr)
+{
+
+  struct PdUThreadNode *curr_node = NULL;
+  LIST_POP_FRONT(uthread_mgr->ready_list_head, uthread_mgr->ready_list_tail, curr_node);
+
+  PD_LOG(DEBUG, "schedule node=%p", curr_node);
+  if (0 == _setjmp(uthread_mgr->jmpbuf))
+  {
+    if (!curr_node->inited)
+    {
+      curr_node->inited = 1;
+      swapcontext(&uthread_mgr->context, &curr_node->context);
+    }
+    else
+    {
+      _longjmp(curr_node->jmpbuf, 1);
+    }
+  }
+  if (NULL != uthread_mgr->ready_list_head) {
+    return 1;
+  } else {
+    return 0;
   }
 }
 

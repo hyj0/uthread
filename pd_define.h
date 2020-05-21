@@ -16,7 +16,7 @@
 
 #define GETTID() syscall(__NR_gettid)
 
-#define PD_UTHREAD_STACK_SIZE 65536
+#define PD_UTHREAD_STACK_SIZE 655360
 
 #endif
 

@@ -11,6 +11,7 @@ struct PdUThreadNode;
 typedef void *(*pd_uthread_func_pt) (struct PdUThreadNode*, void*);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+extern struct PdUThreadNode *getPdUThreadMgr_ready_list_head(struct PdUThreadMgr *uthread_mgr);
 
 extern struct PdUThreadMgr *pd_uthread_init_mgr();
 
@@ -23,6 +24,8 @@ extern void pd_uthread_destroy_node(struct PdUThreadNode *uthread_node);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 extern void pd_uthread_schedule(struct PdUThreadMgr *uthread_mgr);
+//返回值 1--还有任务, 0--没有任务
+extern int pd_uthread_scheduleII(struct PdUThreadMgr *uthread_mgr);
 
 extern void pd_uthread_yield(struct PdUThreadNode *uthread_node, const int ready);
 
